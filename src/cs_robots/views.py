@@ -5,7 +5,12 @@ from django.shortcuts import render, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpResponse, Http404
+from django.core.exceptions import ImproperlyConfigured
+
 from .forms import RobotsTxtForm
+
+
 
 @staff_member_required
 def edit_robots_txt(request):
@@ -41,3 +46,20 @@ def edit_robots_txt(request):
         'opts': {'app_label': CSRobotsConfig.name}, 
     }
     return render(request, 'cs_robots/edit_cs_robots.html', context)
+
+
+
+
+def serve_robots_txt(request):
+
+    try:
+        file_path = settings.ROBOTS_TXT_PATH
+    except AttributeError:
+        raise ImproperlyConfigured("ROBOTS_TXT_PATH is not defined in settings.py")
+
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return HttpResponse(content, content_type='text/plain')
+    except FileNotFoundError:
+        raise Http404("robots.txt not found.")
