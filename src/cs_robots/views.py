@@ -1,9 +1,15 @@
 # src/cs_robots/views.py
 from .apps import CSRobotsConfig 
+# core/views.py
+from django.shortcuts import render, redirect
+from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
+from django.contrib import messages
+from .forms import RobotsTxtForm
 
 @staff_member_required
 def edit_robots_txt(request):
-    file_path = settings.ROBOTS_TXT_PATH
+    file_path = getattr(settings,'ROBOTS_TXT_PATH','')
     initial_content = ""
 
     # Intentar leer el contenido actual del fichero
@@ -34,4 +40,4 @@ def edit_robots_txt(request):
         'form': form,
         'opts': {'app_label': CSRobotsConfig.name}, 
     }
-    return render(request, 'cs_robots/edit_robots.html', context)
+    return render(request, 'cs_robots/edit_cs_robots.html', context)
