@@ -34,3 +34,6 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/jatsu/django-admin-robots"
 Issues = "https://github.com/jatsu/django-admin-robots/issues"
+
+[tool.setuptools]
+include-package-data = true
