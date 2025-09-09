@@ -1,0 +1,37 @@
+# src/cs_robots/views.py
+from .apps import CSRobotsConfig 
+
+@staff_member_required
+def edit_robots_txt(request):
+    file_path = settings.ROBOTS_TXT_PATH
+    initial_content = ""
+
+    # Intentar leer el contenido actual del fichero
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            initial_content = f.read()
+    except FileNotFoundError:
+        messages.warning(request, "El fichero robots.txt no existía y será creado.")
+    except Exception as e:
+        messages.error(request, f"Error al leer el fichero: {e}")
+
+    if request.method == 'POST':
+        form = RobotsTxtForm(request.POST)
+        if form.is_valid():
+            try:
+                # Escribir el nuevo contenido en el fichero
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    f.write(form.cleaned_data['content'])
+                messages.success(request, "¡Fichero robots.txt guardado correctamente!")
+                return redirect('edit_robots_txt') # Redirigir para mostrar el éxito
+            except Exception as e:
+                messages.error(request, f"Error al guardar el fichero: {e}")
+    else:
+        # Mostrar el formulario con el contenido actual
+        form = RobotsTxtForm(initial={'content': initial_content})
+    context = {
+        'title': 'Edit robots.txt',
+        'form': form,
+        'opts': {'app_label': CSRobotsConfig.name}, 
+    }
+    return render(request, 'cs_robots/edit_robots.html', context)
